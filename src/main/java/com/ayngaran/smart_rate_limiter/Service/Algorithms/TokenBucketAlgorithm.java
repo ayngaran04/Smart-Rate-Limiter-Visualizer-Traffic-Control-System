@@ -1,8 +1,10 @@
 package com.ayngaran.smart_rate_limiter.Service.Algorithms;
 
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Component;
 
-public class tokenBucketAlgorithm implements RateLimiter {
+import java.util.concurrent.ConcurrentHashMap;
+@Component
+public class TokenBucketAlgorithm implements RateLimiter {
     public static class Bucket{
         double tokens;
         long lastRefillTime;
@@ -11,8 +13,12 @@ public class tokenBucketAlgorithm implements RateLimiter {
     private final int  refillRate;
     private final ConcurrentHashMap<String , Bucket> buckets=new ConcurrentHashMap<>();
 
+    public TokenBucketAlgorithm() {
+        this.capacity = 10;
+        this.refillRate = 5;
+    }
 
-    public tokenBucketAlgorithm(int capacity, int refillRate) {
+    public TokenBucketAlgorithm(int capacity, int refillRate) {
         this.capacity = capacity;
         this.refillRate = refillRate;
     }
@@ -29,7 +35,7 @@ public class tokenBucketAlgorithm implements RateLimiter {
             if(bucket.tokens>=1){
                 bucket.tokens--;
                 return true;
-            };
+            }
             return false;
         }
     }
@@ -42,7 +48,7 @@ public class tokenBucketAlgorithm implements RateLimiter {
         if(tokenToAdd>0){
           bucket.tokens = Math.min(capacity, bucket.tokens + tokenToAdd);
           bucket.lastRefillTime = now;
-        };
+        }
     }
 
 

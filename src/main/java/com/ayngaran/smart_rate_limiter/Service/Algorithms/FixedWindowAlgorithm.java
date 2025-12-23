@@ -1,7 +1,10 @@
 package com.ayngaran.smart_rate_limiter.Service.Algorithms;
 
+import org.springframework.stereotype.Component;
+
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class FixedWindowAlgorithm implements RateLimiter {
     public static class Bucket{
         long lastFilledTime;
@@ -9,6 +12,11 @@ public class FixedWindowAlgorithm implements RateLimiter {
     };
     private final int requestCount;
     private final ConcurrentHashMap<String , FixedWindowAlgorithm.Bucket> buckets=new ConcurrentHashMap<>();
+    
+    public FixedWindowAlgorithm() {
+        this.requestCount = 10;
+    }
+    
     public FixedWindowAlgorithm(int requestCount) {
         this.requestCount = requestCount;
     }

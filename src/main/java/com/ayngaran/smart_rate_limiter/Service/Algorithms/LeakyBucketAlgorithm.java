@@ -1,9 +1,11 @@
 package com.ayngaran.smart_rate_limiter.Service.Algorithms;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+@Component
 public class LeakyBucketAlgorithm implements RateLimiter {
 
     public static class Bucket {
@@ -14,6 +16,11 @@ public class LeakyBucketAlgorithm implements RateLimiter {
     private final int capacity;
     private final int reqPerSecond;
     private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+
+    public LeakyBucketAlgorithm() {
+        this.capacity = 10;
+        this.reqPerSecond = 5;
+    }
 
     public LeakyBucketAlgorithm(int capacity, int reqPerSecond) {
         this.capacity = capacity;
@@ -42,9 +49,8 @@ public class LeakyBucketAlgorithm implements RateLimiter {
         if (bucket.queue.size() >= capacity) {
             return false;
         }
-
-        bucket.queue.add(System.currentTimeMillis());
         process(id);
+        bucket.queue.add(System.currentTimeMillis());
         return true;
     }
 }
