@@ -1,38 +1,39 @@
 package com.ayngaran.smart_rate_limiter.Service.Algorithms;
 
 import org.springframework.stereotype.Component;
-
 import java.util.concurrent.ConcurrentHashMap;
+
 @Component
 public class TokenBucketAlgorithm implements RateLimiter {
-    public static class Bucket{
+
+    // Store config INSIDE the bucket so every user can have different limits
+    public static class Bucket {
         double tokens;
         long lastRefillTime;
-    }
-    private final int capacity;
-    private final int  refillRate;
-    private final ConcurrentHashMap<String , Bucket> buckets=new ConcurrentHashMap<>();
-
-    public TokenBucketAlgorithm() {
-        this.capacity = 10;
-        this.refillRate = 5;
+        int capacity;
+        int refillRate;
     }
 
-    public TokenBucketAlgorithm(int capacity, int refillRate) {
-        this.capacity = capacity;
-        this.refillRate = refillRate;
-    }
+    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+
     @Override
-    public boolean allowRequest(String id) {
-        Bucket bucket = buckets.computeIfAbsent(id,k->{
+    public boolean allowRequest(String id, int capacity, int refillRate) {
+        Bucket bucket = buckets.computeIfAbsent(id, k -> {
             Bucket x = new Bucket();
+            x.capacity = capacity;
+            x.refillRate = refillRate;
             x.tokens = capacity;
             x.lastRefillTime = System.currentTimeMillis();
             return x;
         });
-        synchronized (bucket){
+
+        // Optional: Update bucket config if the request parameters changed
+        bucket.capacity = capacity;
+        bucket.refillRate = refillRate;
+
+        synchronized (bucket) {
             refill(bucket);
-            if(bucket.tokens>=1){
+            if (bucket.tokens >= 1) {
                 bucket.tokens--;
                 return true;
             }
@@ -42,14 +43,12 @@ public class TokenBucketAlgorithm implements RateLimiter {
 
     private void refill(Bucket bucket) {
         long now = System.currentTimeMillis();
-        double secondGone = (now - bucket.lastRefillTime) / 1000.0;
-        double tokenToAdd = secondGone * refillRate ;
+        double secondsGone = (now - bucket.lastRefillTime) / 1000.0;
+        double tokensToAdd = secondsGone * bucket.refillRate;
 
-        if(tokenToAdd>0){
-          bucket.tokens = Math.min(capacity, bucket.tokens + tokenToAdd);
-          bucket.lastRefillTime = now;
+        if (tokensToAdd > 0) {
+            bucket.tokens = Math.min(bucket.capacity, bucket.tokens + tokensToAdd);
+            bucket.lastRefillTime = now;
         }
     }
-
-
 }
