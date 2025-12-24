@@ -1,49 +1,47 @@
 package com.ayngaran.smart_rate_limiter.Service.Algorithms;
 
 import org.springframework.stereotype.Component;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class FixedWindowAlgorithm implements RateLimiter {
-    public static class Bucket{
+
+    public static class Bucket {
         long lastFilledTime;
         int requests;
-    };
-    private final int requestCount;
-    private final ConcurrentHashMap<String , FixedWindowAlgorithm.Bucket> buckets=new ConcurrentHashMap<>();
-    
-    public FixedWindowAlgorithm() {
-        this.requestCount = 10;
-    }
-    
-    public FixedWindowAlgorithm(int requestCount) {
-        this.requestCount = requestCount;
+        int limit;
     }
 
+    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+
     @Override
-    public boolean allowRequest(String id) {
-        Bucket b = buckets.computeIfAbsent(id,k->{
+    public boolean allowRequest(String id, int capacity, int unusedRate) {
+
+        Bucket b = buckets.computeIfAbsent(id, k -> {
             Bucket x = new Bucket();
-            x.requests =  requestCount;
+            x.limit = capacity;
+            x.requests = capacity;
             x.lastFilledTime = System.currentTimeMillis();
             return x;
         });
-        synchronized (b){
+
+        b.limit = capacity;
+
+        synchronized (b) {
             refill(b);
-            if(b.requests>=1){
+            if (b.requests >= 1) {
                 b.requests--;
                 return true;
-            }return false;
+            }
+            return false;
         }
+    }
 
-
-    };
-    public void refill(Bucket b){
+    public void refill(Bucket b) {
         long now = System.currentTimeMillis();
-        long last = b.lastFilledTime;
-        if((now)-(last)>=60000){
-            b.requests = requestCount;
+
+        if ((now - b.lastFilledTime) >= 60000) {
+            b.requests = b.limit;
             b.lastFilledTime = now;
         }
     }

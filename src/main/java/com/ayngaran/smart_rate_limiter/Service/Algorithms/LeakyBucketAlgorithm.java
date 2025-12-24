@@ -21,7 +21,6 @@ public class LeakyBucketAlgorithm implements RateLimiter {
         long now = System.currentTimeMillis();
         if (now - bucket.lastLeakTime >= 1000) {
             int counter = 0;
-            // Leak items based on the bucket's specific rate
             while (!bucket.queue.isEmpty() && counter < bucket.leakRate) {
                 bucket.queue.poll();
                 counter++;
@@ -39,7 +38,7 @@ public class LeakyBucketAlgorithm implements RateLimiter {
             return b;
         });
 
-        // Update config in case simulation params changed
+
         bucket.capacity = capacity;
         bucket.leakRate = reqPerSecond;
 

@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class TokenBucketAlgorithm implements RateLimiter {
 
-    // Store config INSIDE the bucket so every user can have different limits
+
     public static class Bucket {
         double tokens;
         long lastRefillTime;
@@ -27,7 +27,6 @@ public class TokenBucketAlgorithm implements RateLimiter {
             return x;
         });
 
-        // Optional: Update bucket config if the request parameters changed
         bucket.capacity = capacity;
         bucket.refillRate = refillRate;
 
