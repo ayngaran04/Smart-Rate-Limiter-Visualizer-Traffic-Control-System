@@ -1,4 +1,6 @@
 Warning - Trauma Dump ahead.
+PS - Check the branch for the codebase.
+
 # 🚦 Smart Rate Limiter
 
 ### *Because 429 "Too Many Requests" is my love language.*
