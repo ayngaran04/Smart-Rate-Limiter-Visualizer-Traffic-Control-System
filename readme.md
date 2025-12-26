@@ -1,4 +1,4 @@
-\Smart Rate Limiter
+Smart Rate Limiter
 Overview
 A full-stack simulation tool designed to visualize and test distributed rate-limiting algorithms. This project demonstrates high-concurrency request handling using custom Java implementations of Token Bucket, Leaky Bucket, and Fixed Window algorithms, paired with a real-time React visualization dashboard.
 
