@@ -18,11 +18,3 @@ A full-stack simulation tool designed to visualize and test distributed rate-lim
 
 **Endpoint:** `POST /sim/request`
 
-**Request Body:**
-```json
-{
-  "clientId": "client_id",
-  "algorithm": "TokenBucket",
-  "capacity": 10,
-  "rate": 5
-}
